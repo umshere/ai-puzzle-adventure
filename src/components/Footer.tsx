@@ -1,206 +1,143 @@
 "use client";
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-import React from 'react';
+interface ParticleStyle {
+  width: number;
+  height: number;
+  top: number;
+  left: number;
+  animationDuration: number;
+  color: string;
+}
 
 const Footer: React.FC = () => {
+  const [particles, setParticles] = useState<ParticleStyle[]>([]);
+
+  // Particle colors
+  const particleColors = [
+    'rgba(79, 70, 229, 0.4)', // indigo
+    'rgba(139, 92, 246, 0.4)', // violet
+    'rgba(59, 130, 246, 0.4)', // blue
+  ];
+
+  useEffect(() => {
+    // Generate particle styles only on client-side
+    setParticles(Array(20).fill(null).map(() => ({
+      width: Math.random() * 4 + 1,
+      height: Math.random() * 4 + 1,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      animationDuration: Math.random() * 10 + 10,
+      color: particleColors[Math.floor(Math.random() * particleColors.length)]
+    })));
+  }, []);
+
   return (
-    <footer style={{ 
-      background: 'linear-gradient(to right, #1e293b, #0f172a)',
-      color: '#e2e8f0',
-      padding: '4rem 0 2rem',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <footer className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white py-16 relative overflow-hidden">
       {/* Animated particles */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.1 }}>
-        {[...Array(20)].map((_, i) => (
+      <div className="absolute inset-0 overflow-hidden opacity-20">
+        {particles.map((particle, i) => (
           <div 
             key={i}
+            className="absolute rounded-full animate-float"
             style={{ 
-              position: 'absolute',
-              borderRadius: '50%',
-              background: 'white',
-              width: `${Math.random() * 4 + 1}px`, 
-              height: `${Math.random() * 4 + 1}px`,
-              top: `${Math.random() * 100}%`, 
-              left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 10 + 10}s linear infinite`
+              background: particle.color,
+              width: `${particle.width}px`, 
+              height: `${particle.height}px`,
+              top: `${particle.top}%`, 
+              left: `${particle.left}%`,
+              animationDuration: `${particle.animationDuration}s`
             }}
           />
         ))}
       </div>
       
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '0 1rem',
-        position: 'relative',
-        zIndex: 10
-      }}>
+      <div className="container mx-auto px-4 relative z-10">
         {/* Main footer content */}
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '2rem',
-          marginBottom: '3rem'
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company info */}
-          <div style={{ animation: 'fadeIn 0.5s ease-out forwards', animationDelay: '0.1s', opacity: 0 }}>
-            <h3 style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 'bold', 
-              marginBottom: '1rem',
-              background: 'linear-gradient(to right, #4f46e5, #8b5cf6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              display: 'inline-block'
-            }}>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.1s' }}>
+            <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent inline-block">
               AI Puzzle Adventure
             </h3>
-            <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+            <p className="text-slate-300 mb-6 leading-relaxed">
               Explore a world of procedurally generated puzzles and creative challenges powered by AI.
             </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="flex gap-4">
               {/* Social icons */}
-              {['twitter', 'facebook', 'github'].map((social, index) => (
+              {[
+                { name: 'Twitter', icon: '𝕏' },
+                { name: 'GitHub', icon: '⌥' },
+                { name: 'Discord', icon: 'ᗪ' }
+              ].map((social) => (
                 <a 
-                  key={social}
+                  key={social.name}
                   href="#" 
-                  style={{ 
-                    width: '2.5rem',
-                    height: '2.5rem',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    color: '#e2e8f0'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = '#4f46e5';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-indigo-600 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20"
+                  aria-label={social.name}
                 >
-                  <span style={{ fontSize: '1.25rem' }}>
-                    {social === 'twitter' ? '𝕏' : social === 'facebook' ? 'f' : '⌥'}
-                  </span>
+                  <span className="text-xl">{social.icon}</span>
                 </a>
               ))}
             </div>
           </div>
           
           {/* Quick links */}
-          <div style={{ animation: 'fadeIn 0.5s ease-out forwards', animationDelay: '0.2s', opacity: 0 }}>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.25rem', color: 'white' }}>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.2s' }}>
+            <h4 className="text-lg font-semibold mb-5 text-white">
               Features
             </h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <ul className="space-y-3">
               {['Procedural Generation', 'Adaptive Difficulty', 'User-Generated Content', 'Community Ratings'].map((item) => (
                 <li key={item}>
-                  <a 
+                  <Link 
                     href="#" 
-                    style={{ 
-                      color: '#94a3b8', 
-                      transition: 'all 0.2s ease',
-                      display: 'inline-flex',
-                      alignItems: 'center'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.color = 'white';
-                      e.currentTarget.style.paddingLeft = '0.5rem';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.color = '#94a3b8';
-                      e.currentTarget.style.paddingLeft = '0';
-                    }}
+                    className="text-slate-300 hover:text-white transition-all duration-200 hover:pl-2 flex items-center group"
                   >
+                    <span className="w-0 h-0.5 bg-indigo-500 mr-0 group-hover:w-2 group-hover:mr-2 transition-all duration-200"></span>
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
           
           {/* Resources */}
-          <div style={{ animation: 'fadeIn 0.5s ease-out forwards', animationDelay: '0.3s', opacity: 0 }}>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.25rem', color: 'white' }}>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.3s' }}>
+            <h4 className="text-lg font-semibold mb-5 text-white">
               Resources
             </h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <ul className="space-y-3">
               {['Documentation', 'API Reference', 'Tutorials', 'Blog'].map((item) => (
                 <li key={item}>
-                  <a 
+                  <Link 
                     href="#" 
-                    style={{ 
-                      color: '#94a3b8', 
-                      transition: 'all 0.2s ease',
-                      display: 'inline-flex',
-                      alignItems: 'center'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.color = 'white';
-                      e.currentTarget.style.paddingLeft = '0.5rem';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.color = '#94a3b8';
-                      e.currentTarget.style.paddingLeft = '0';
-                    }}
+                    className="text-slate-300 hover:text-white transition-all duration-200 hover:pl-2 flex items-center group"
                   >
+                    <span className="w-0 h-0.5 bg-violet-500 mr-0 group-hover:w-2 group-hover:mr-2 transition-all duration-200"></span>
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
           
           {/* Newsletter */}
-          <div style={{ animation: 'fadeIn 0.5s ease-out forwards', animationDelay: '0.4s', opacity: 0 }}>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.25rem', color: 'white' }}>
+          <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
+            <h4 className="text-lg font-semibold mb-5 text-white">
               Stay Updated
             </h4>
-            <p style={{ color: '#94a3b8', marginBottom: '1rem', lineHeight: '1.6' }}>
+            <p className="text-slate-300 mb-4 leading-relaxed">
               Subscribe to our newsletter for the latest updates and features.
             </p>
-            <div style={{ 
-              display: 'flex',
-              borderRadius: '0.5rem',
-              overflow: 'hidden',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-            }}>
+            <div className="flex rounded-lg overflow-hidden shadow-lg">
               <input 
                 type="email" 
                 placeholder="Your email" 
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: 'none',
-                  padding: '0.75rem 1rem',
-                  color: 'white',
-                  flexGrow: 1,
-                  outline: 'none'
-                }}
+                className="bg-white/10 border-none py-3 px-4 text-white flex-grow outline-none focus:bg-white/15 transition-colors duration-200"
               />
-              <button style={{
-                background: '#4f46e5',
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = '#4338ca';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = '#4f46e5';
-              }}
-              >
+              <button className="bg-indigo-600 text-white border-none py-3 px-4 font-medium cursor-pointer transition-all duration-300 hover:bg-indigo-700 whitespace-nowrap">
                 Subscribe
               </button>
             </div>
@@ -208,59 +145,24 @@ const Footer: React.FC = () => {
         </div>
         
         {/* Divider */}
-        <div style={{ 
-          height: '1px', 
-          background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent)', 
-          margin: '2rem 0' 
-        }}></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-8"></div>
         
         {/* Copyright */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          textAlign: 'center',
-          gap: '1rem',
-          color: '#94a3b8',
-          animation: 'fadeIn 0.5s ease-out forwards',
-          animationDelay: '0.5s',
-          opacity: 0
-        }}>
+        <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left text-slate-400 animate-fade-in opacity-0" style={{ animationDelay: '0.5s' }}>
           <p>&copy; {new Date().getFullYear()} AI Puzzle Adventure. All rights reserved.</p>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <div className="flex gap-6 mt-4 md:mt-0">
             {['Privacy Policy', 'Terms of Service', 'Contact'].map((item) => (
-              <a 
+              <Link 
                 key={item} 
                 href="#" 
-                style={{ 
-                  color: '#94a3b8',
-                  transition: 'color 0.2s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = '#94a3b8';
-                }}
+                className="text-slate-400 hover:text-white transition-colors duration-200"
               >
                 {item}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-          100% { transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </footer>
   );
 };

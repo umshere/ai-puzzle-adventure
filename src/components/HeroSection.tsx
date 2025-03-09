@@ -1,168 +1,168 @@
 "use client";
+import React, { ReactNode, useEffect, useState, useRef } from 'react';
 
-import React from 'react';
+interface HeroSectionProps {
+  children: ReactNode;
+  compact?: boolean;
+}
 
-const HeroSection: React.FC = () => {
+interface BubbleStyle {
+  width: number;
+  height: number;
+  top: number;
+  left: number;
+  animationDelay: number;
+  isReverse?: boolean;
+  color: string;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ children, compact = false }) => {
+  const [bubbleStyles, setBubbleStyles] = useState<BubbleStyle[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Colors for the bubbles
+  const bubbleColors = [
+    'rgba(79, 70, 229, 0.2)', // indigo
+    'rgba(139, 92, 246, 0.2)', // violet
+    'rgba(59, 130, 246, 0.2)', // blue
+    'rgba(16, 185, 129, 0.2)', // emerald
+  ];
+
+  useEffect(() => {
+    setMounted(true);
+    // Create 10 bubbles with varying properties
+    setBubbleStyles(
+      Array(10).fill(null).map((_, index) => ({
+        width: Math.random() * 120 + 60,
+        height: Math.random() * 120 + 60,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        animationDelay: Math.random() * 3, // 0-3s delay
+        isReverse: index % 2 === 0, // Alternate between normal and reverse animations
+        color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)]
+      }))
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }
+    };
+
+    const section = sectionRef.current;
+    section.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      section.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [sectionRef]);
+
+  const renderLoadingPlaceholder = () => (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  );
+
   return (
-    <section style={{ 
-      background: 'linear-gradient(to right, #4f46e5, #7e22ce, #3b82f6)',
-      color: 'white',
-      padding: '5rem 0',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Animated background elements */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {[...Array(6)].map((_, i) => (
-          <div 
-            key={i}
-            style={{ 
-              position: 'absolute',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.1)',
-              width: `${Math.random() * 200 + 50}px`, 
-              height: `${Math.random() * 200 + 50}px`,
-              top: `${Math.random() * 100}%`, 
-              left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 10 + 10}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 5}s`
-            }}
-          />
-        ))}
-      </div>
+    <section 
+      ref={sectionRef}
+      className="relative min-h-[70vh] flex flex-col justify-center bg-gradient-to-br from-indigo-950 via-violet-900 to-blue-950 text-white overflow-hidden"
+    >
+      {/* Dark overlay with gradient for better text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent"></div>
       
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '0 1rem', 
-        textAlign: 'center',
-        position: 'relative',
-        zIndex: 10
-      }}>
-        <div style={{ animation: 'slideUp 0.5s ease-out forwards' }}>
-          <h1 style={{ 
-            fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-            fontWeight: 'bold',
-            marginBottom: '1.5rem',
-            background: 'linear-gradient(to right, #ffffff, #e0e7ff)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            animation: 'pulseGlow 2s ease-in-out infinite'
-          }}>
-            AI-Assisted Creative Puzzle Adventure
-          </h1>
-          <p style={{ 
-            fontSize: '1.25rem',
-            marginBottom: '2.5rem',
-            maxWidth: '42rem',
-            margin: '0 auto 2.5rem',
-            opacity: 0,
-            animation: 'fadeIn 0.5s ease-out 0.3s forwards'
-          }}>
-            Explore a world of procedurally generated puzzles and creative challenges.
-          </p>
-          <div style={{ 
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1rem',
-            opacity: 0,
-            animation: 'fadeIn 0.5s ease-out 0.6s forwards'
-          }}>
-            <a 
-              href="/play" 
-              style={{
-                display: 'inline-block',
-                backgroundColor: 'white',
-                color: '#4f46e5',
-                padding: '1rem 2rem',
-                borderRadius: '9999px',
-                fontWeight: '600',
-                fontSize: '1.125rem',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              Get Started
-            </a>
-            <a 
-              href="/create" 
-              style={{
-                display: 'inline-block',
-                backgroundColor: 'transparent',
-                color: 'white',
-                padding: '1rem 2rem',
-                borderRadius: '9999px',
-                fontWeight: '600',
-                fontSize: '1.125rem',
-                transition: 'all 0.3s ease',
-                border: '2px solid white'
-              }}
-            >
-              Create Puzzle
-            </a>
-          </div>
+      {/* Loading placeholder when not mounted */}
+      {!mounted && renderLoadingPlaceholder()}
+      
+      {/* Animated bubbles */}
+      {mounted && (
+        <div className="absolute inset-0">
+          {bubbleStyles.map((style, i) => {
+            // Calculate distance from mouse to bubble center
+            const bubbleX = (style.left / 100) * (sectionRef.current?.offsetWidth || 0);
+            const bubbleY = (style.top / 100) * (sectionRef.current?.offsetHeight || 0);
+            
+            // Calculate distance from mouse (simplified)
+            const dx = mousePosition.x - bubbleX;
+            const dy = mousePosition.y - bubbleY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Influence radius - bubbles within this range will be affected by mouse
+            const influenceRadius = 300;
+            
+            // Calculate scale and opacity based on mouse proximity
+            let scale = 1;
+            let opacity = 1;
+            
+            if (distance < influenceRadius) {
+              // Closer to mouse = smaller and more transparent
+              const factor = distance / influenceRadius;
+              scale = 0.8 + (factor * 0.2); // Scale between 0.8 and 1
+              opacity = 0.7 + (factor * 0.3); // Opacity between 0.7 and 1
+            }
+            
+            return (
+              <div 
+                key={i}
+                className={`absolute rounded-full ${style.isReverse ? 'animate-float-reverse' : 'animate-float'} transition-transform duration-300`}
+                style={{ 
+                  background: `radial-gradient(circle at 30% 30%, ${style.color.replace('0.2', '0.4')} 0%, ${style.color} 100%)`,
+                  boxShadow: `0 8px 32px ${style.color.replace('0.2', '0.1')}`,
+                  width: `${style.width}px`, 
+                  height: `${style.height}px`,
+                  top: `${style.top}%`, 
+                  left: `${style.left}%`,
+                  animationDelay: `${style.animationDelay}s`,
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  transform: `scale(${scale})`,
+                  opacity: opacity,
+                  zIndex: 1
+                }}
+              />
+            );
+          })}
         </div>
-        
-        {/* Floating 3D element */}
-        <div style={{ 
-          marginTop: '4rem',
-          position: 'relative',
-          width: '16rem',
-          height: '16rem',
-          margin: '4rem auto 0',
-          animation: 'float 3s ease-in-out infinite',
-          perspective: '1000px'
-        }}>
-          <div style={{ 
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(255, 255, 255, 0.25)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)',
-            borderRadius: '1rem',
-            transform: 'rotate(12deg)',
-            animation: 'pulseGlow 2s ease-in-out infinite'
-          }}>
-            <div style={{ 
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span style={{ 
-                color: 'white',
-                fontSize: '2.5rem',
-                fontWeight: 'bold'
-              }}>AI</span>
-            </div>
-          </div>
+      )}
+      
+      {/* Content */}
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-5xl mx-auto py-12 stagger-animation">
+          {React.Children.map(children, (child, index) => {
+            if (React.isValidElement(child)) {
+              const existingClassName = child.props.className || '';
+              const newClassName = `${existingClassName} animate-slide-up`.trim();
+              
+              return React.cloneElement(child, {
+                ...child.props,
+                className: newClassName,
+                style: {
+                  ...child.props.style,
+                  animationDelay: `${index * 0.2}s`
+                }
+              });
+            }
+            return child;
+          })}
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes pulseGlow {
-          0%, 100% { box-shadow: 0 0 0 rgba(79, 70, 229, 0); }
-          50% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.5); }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
+
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-indigo-950/90 to-transparent"></div>
     </section>
   );
 };

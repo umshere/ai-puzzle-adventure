@@ -1,197 +1,112 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 
 const features = [
   { 
     title: "Procedural Generation", 
     description: "Dynamic levels crafted by AI with local fallbacks.",
-    icon: "🧩",
-    color: "#4f46e5" // indigo
+    icon: (isHovered: boolean) => (
+      <div className={`relative ${isHovered ? 'animate-spin-slow' : ''}`}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L6.5 11H17.5L12 2Z" fill="currentColor" />
+            <path d="M17.5 11L12 20L6.5 11H17.5Z" fill="currentColor" opacity="0.7" />
+          </svg>
+        </div>
+      </div>
+    ),
+    color: "from-indigo-600 to-indigo-400"
   },
   { 
     title: "Adaptive Difficulty", 
     description: "Levels adjust based on your performance.",
-    icon: "⚡",
-    color: "#8b5cf6" // violet
+    icon: (isHovered: boolean) => (
+      <div className="relative">
+        <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path 
+            d="M13 2L3 14H12L11 22L21 10H12L13 2Z" 
+            fill="currentColor" 
+            className={isHovered ? 'animate-pulse' : ''}
+          />
+        </svg>
+      </div>
+    ),
+    color: "from-violet-600 to-violet-400"
   },
   { 
     title: "User-Generated Content", 
     description: "Create & share custom puzzles with community ratings.",
-    icon: "👥",
-    color: "#6366f1" // indigo/violet mix
+    icon: (isHovered: boolean) => (
+      <div className="relative">
+        <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path 
+            d="M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM16 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM16 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" 
+            fill="currentColor"
+            className={isHovered ? 'animate-bounce-subtle' : ''}
+          />
+        </svg>
+      </div>
+    ),
+    color: "from-blue-600 to-blue-400"
   }
 ];
 
 const FeatureCards: React.FC = () => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   return (
-    <section style={{ 
-      padding: '6rem 0',
-      background: 'linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%)'
-    }}>
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '0 1rem'
-      }}>
-        <div style={{ 
-          textAlign: 'center', 
-          marginBottom: '4rem',
-          animation: 'fadeIn 0.5s ease-out forwards'
-        }}>
-          <h2 style={{ 
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '1rem',
-            background: 'linear-gradient(to right, #4f46e5, #8b5cf6)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            Game Features
-          </h2>
-          <div style={{ 
-            width: '6rem', 
-            height: '0.25rem', 
-            background: 'linear-gradient(to right, #4f46e5, #8b5cf6)', 
-            margin: '0 auto 1.5rem' 
-          }}></div>
-          <p style={{ 
-            fontSize: '1.25rem',
-            color: '#4b5563',
-            maxWidth: '42rem',
-            margin: '0 auto'
-          }}>
-            Experience the next generation of AI-powered puzzle gaming with these innovative features.
-          </p>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {features.map((feature, index) => {
+        const isHovered = hoveredIndex === index;
         
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem'
-        }}>
-          {features.map((feature, index) => (
-            <div 
-              key={index} 
-              style={{ 
-                background: 'white',
-                borderRadius: '1rem',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05)',
-                padding: '2rem',
-                transition: 'all 0.3s ease',
-                opacity: 0,
-                transform: 'scale(0.95)',
-                animation: 'scaleIn 0.5s ease-out forwards',
-                animationDelay: `${0.1 + index * 0.1}s`,
-                position: 'relative',
-                overflow: 'hidden',
-                border: '1px solid rgba(0, 0, 0, 0.05)'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-10px)';
-                e.currentTarget.style.boxShadow = '0 20px 25px rgba(0, 0, 0, 0.1)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.05)';
-              }}
-            >
-              {/* Top accent line with gradient */}
-              <div style={{ 
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: `linear-gradient(to right, ${feature.color}, ${feature.color}bb)`
-              }}></div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ 
-                  fontSize: '3rem', 
-                  marginBottom: '1.5rem',
-                  background: `linear-gradient(135deg, ${feature.color}, ${feature.color}99)`,
-                  width: '5rem',
-                  height: '5rem',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 1.5rem',
-                  boxShadow: `0 10px 15px ${feature.color}33`
-                }}>
-                  {feature.icon}
-                </div>
-                <h3 style={{ 
-                  fontSize: '1.5rem',
-                  fontWeight: '600',
-                  marginBottom: '0.75rem',
-                  color: '#111827',
-                  transition: 'color 0.3s ease'
-                }}>
-                  {feature.title}
-                </h3>
-                <p style={{ 
-                  color: '#6b7280',
-                  lineHeight: '1.6'
-                }}>
-                  {feature.description}
-                </p>
-                
-                {/* Learn more link */}
-                <div style={{ 
-                  marginTop: '1.5rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  color: feature.color,
-                  fontWeight: '500',
-                  opacity: 0,
-                  transform: 'translateY(10px)',
-                  transition: 'all 0.3s ease'
-                }}
-                className="learn-more-link"
-                >
-                  <span>Learn more</span>
-                  <svg 
-                    style={{ 
-                      width: '1rem', 
-                      height: '1rem', 
-                      marginLeft: '0.5rem',
-                      transition: 'transform 0.3s ease'
-                    }} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24" 
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </div>
-              </div>
+        return (
+          <div 
+            key={index} 
+            className="bg-white rounded-xl shadow-lg p-8 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl relative overflow-hidden group"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            {/* Top accent gradient */}
+            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} transform origin-left transition-transform duration-300 ${isHovered ? 'scale-x-100' : 'scale-x-0'}`}></div>
+            
+            {/* Icon with background */}
+            <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${feature.color} text-white flex items-center justify-center mx-auto mb-6 shadow-lg transition-all duration-300 ${isHovered ? 'scale-110 shadow-xl' : ''}`}>
+              {feature.icon(isHovered)}
             </div>
-          ))}
-        </div>
-      </div>
-      
-      <style jsx>{`
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        div:hover .learn-more-link {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        div:hover .learn-more-link svg {
-          transform: translateX(4px);
-        }
-      `}</style>
-    </section>
+            
+            {/* Title */}
+            <h3 className="text-xl font-bold text-center mb-3 text-gray-800">
+              {feature.title}
+            </h3>
+            
+            {/* Description */}
+            <p className="text-gray-600 text-center">
+              {feature.description}
+            </p>
+            
+            {/* Learn more link */}
+            <div className="mt-6 text-center">
+              <a 
+                href="#" 
+                className={`inline-flex items-center text-sm font-medium bg-gradient-to-r ${feature.color} bg-clip-text text-transparent transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0`}
+              >
+                Learn more
+                <svg 
+                  className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

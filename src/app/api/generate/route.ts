@@ -1,19 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { geminiClient } from "@/lib/gemini";
-import { openRouterClient } from "@/lib/openrouter";
+import { klusterClient } from "@/lib/kluster";
 
 // Fallback level generator when AI APIs are not available
 function generateLevelStub(playerSkill = 3, theme = "default") {
   // Generate a simple grid layout
   const size = Math.max(3, Math.min(8, playerSkill + 2));
-  const layout = Array(size)
+  let layout = Array(size)
     .fill(0)
     .map(() =>
       Array(size)
         .fill(0)
         .map(() => (Math.random() > 0.7 ? 1 : 0))
     );
+
+  // Run-length encode the layout
+  let encodedLayout = [];
+  for (let row of layout) {
+    let count = 1;
+    for (let i = 1; i < row.length; i++) {
+      if (row[i] === row[i - 1]) {
+        count++;
+      } else {
+        encodedLayout.push(count);
+        count = 1;
+      }
+    }
+    encodedLayout.push(count);
+  }
+  layout = encodedLayout;
 
   // Add some obstacles based on difficulty
   const obstacles = [];
@@ -39,118 +53,57 @@ function generateLevelStub(playerSkill = 3, theme = "default") {
   };
 }
 
-// Call OpenRouter API to generate a level
-async function callOpenRouter(promptData: any) {
-  if (!process.env.OPENROUTER_API_KEY || !process.env.OPENROUTER_API_TOKEN) {
-    console.log("OpenRouter tokens missing, using fallback AI stub.");
-    return generateLevelStub(promptData.playerSkill, promptData.theme);
-  }
-
-  try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_TOKEN}`,
-        "X-API-Key": process.env.OPENROUTER_API_KEY,
-      },
-    };
-
-    // This is a simplified example - in a real implementation,
-    // we would craft a proper prompt for the AI
-    const response = await axios.post(
-      "https://api.openrouter.ai/api/v1/chat/completions",
-      {
-        model: "anthropic/claude-3-opus:beta",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a puzzle game level designer. Generate a JSON level layout for a puzzle game.",
-          },
-          {
-            role: "user",
-            content: `Create a ${promptData.theme} themed puzzle level with difficulty ${promptData.playerSkill}/10.`,
-          },
-        ],
-        response_format: { type: "json_object" },
-      },
-      config
-    );
-
-    // Parse the AI response and convert to our level format
-    // This is simplified - in reality we would need more robust parsing
-    try {
-      const aiResponse = response.data.choices[0].message.content;
-      const parsedResponse = JSON.parse(aiResponse);
-
-      return {
-        levelId: `${promptData.theme}-${Date.now().toString(36)}`,
-        layout:
-          parsedResponse.layout ||
-          generateLevelStub(promptData.playerSkill, promptData.theme).layout,
-        obstacles: parsedResponse.obstacles || [],
-        difficultyRating: promptData.playerSkill,
-        theme: promptData.theme,
-      };
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      return generateLevelStub(promptData.playerSkill, promptData.theme);
+// Helper function to run-length encode the layout
+function encodeLayout(layout: number[][]): number[] {
+  let encodedLayout: number[] = [];
+  for (let row of layout) {
+    let count = 1;
+    for (let i = 1; i < row.length; i++) {
+      if (row[i] === row[i - 1]) {
+        count++;
+      } else {
+        encodedLayout.push(count);
+        count = 1;
+      }
     }
-  } catch (err) {
-    console.error("OpenRouter call failed:", err);
-    return generateLevelStub(promptData.playerSkill, promptData.theme);
+    encodedLayout.push(count);
   }
+  return encodedLayout;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { playerSkill = 3, theme = "sci-fi" } = body;
+    // Validate and sanitize inputs
+    const playerSkill = Math.min(Math.max(body.playerSkill || 3, 1), 10);
+    const theme = (body.theme || "sci-fi")
+      .toString()
+      .slice(0, 20)
+      .replace(/[^a-zA-Z0-9-]/g, "");
 
-    // Try to use Gemini API first
-    if (geminiClient.isConfigured()) {
+    // Try to use Kluster API
+    if (klusterClient.isConfigured()) {
       try {
-        console.log("Using Gemini API for level generation");
-        const levelData = await geminiClient.generateLevel({
+        console.log("Using Kluster API for level generation");
+        const levelData = await klusterClient.generateLevel({
           playerSkill,
           theme,
         });
+        const encodedLayout = encodeLayout(levelData.layout);
         return NextResponse.json({
           levelId: `${theme}-${Date.now().toString(36)}`,
-          layout:
-            levelData.layout || generateLevelStub(playerSkill, theme).layout,
+          layout: encodedLayout || generateLevelStub(playerSkill, theme).layout,
           obstacles: levelData.obstacles || [],
           difficultyRating: playerSkill,
           theme: theme,
         });
-      } catch (geminiError) {
-        console.error("Gemini API call failed:", geminiError);
-        // Fall through to OpenRouter or stub
-      }
-    }
-
-    // Try OpenRouter API next
-    if (openRouterClient.isConfigured()) {
-      try {
-        console.log("Using OpenRouter API for level generation");
-        const levelData = await openRouterClient.generateLevel({
-          playerSkill,
-          theme,
-        });
-        return NextResponse.json({
-          levelId: `${theme}-${Date.now().toString(36)}`,
-          layout:
-            levelData.layout || generateLevelStub(playerSkill, theme).layout,
-          obstacles: levelData.obstacles || [],
-          difficultyRating: playerSkill,
-          theme: theme,
-        });
-      } catch (openRouterError) {
-        console.error("OpenRouter API call failed:", openRouterError);
+      } catch (klusterError) {
+        console.error("Kluster API call failed:", klusterError);
         // Fall through to stub
       }
     }
 
-    // Fallback to stub if both APIs fail or are not configured
+    // Fallback to stub if API fails or is not configured
     console.log("Using fallback stub for level generation");
     const levelData = generateLevelStub(playerSkill, theme);
     return NextResponse.json(levelData);
