@@ -1,0 +1,101 @@
+.game-container {
+  position: relative;
+  border: 2px solid #4f46e5;
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+}
+
+.tutorial-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-family: "Inter", sans-serif;
+}
+
+.tutorial-content {
+  max-width: 80%;
+  text-align: center;
+  padding: 2rem;
+  background: rgba(79, 70, 229, 0.2);
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+.tutorial-step {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-left: 3px solid #4f46e5;
+}
+
+.game-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 5;
+}
+
+.collectible-glow {
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.goal-marker {
+  position: absolute;
+  background: rgba(16, 185, 129, 0.3);
+  border: 2px solid #10b981;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: goalPulse 1.5s infinite;
+}
+
+@keyframes goalPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
