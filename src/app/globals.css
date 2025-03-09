@@ -245,6 +245,17 @@ body {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
+/* Hide scrollbar but keep functionality */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 .animate-slide-up {
   animation: slide-up 0.5s ease-out forwards;
 }
@@ -402,5 +413,5 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
+  color: transparent; /* Corrected property */
 }
